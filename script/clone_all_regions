@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+ROOT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )/.." &> /dev/null && pwd )
+TMP_DIR=$ROOT_DIR/.tmp
+ALL_REGIONS=$TMP_DIR/all_regions
+DEPLOYED_REGIONS=$TMP_DIR/deployed_regions
+
+mkdir -p $TMP_DIR
+
+mid=$(fly m list -j | jq -r '.[0].id')
+fly platform regions -j | jq -r '.[].Code' | grep -v maa | sort | uniq > $ALL_REGIONS
+fly  m list -j | jq -r '.[].region' | sort | uniq > $DEPLOYED_REGIONS
+
+for region in $(comm -23 $ALL_REGIONS $DEPLOYED_REGIONS); do
+    fly m clone --detach --region $region $mid
+done

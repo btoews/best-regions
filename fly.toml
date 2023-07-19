@@ -1,0 +1,16 @@
+app = "best-regions"
+primary_region = "den"
+
+[deploy]
+  strategy = "immediate"
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = false
+
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 10000
+    hard_limit = 10000
